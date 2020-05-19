@@ -1,8 +1,21 @@
 # Import Dependencies
+import numpy as np
+import datetime as dt 
+from datetime import timedelta
+import sqlalchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
+from sqlalchemy import create_engine, func, inspect
+from sqlalchemy.engine import reflection 
+from sqlalchemy import Column, Integer, String, Float
+from sqlalchemy.ext.declarative import declarative_base
 from flask import Flask, jsonify
 
 #Create Engine
-engine = create_engine("sqlite:///Resources/hawaii.sqlite")
+engine = create_engine("sqlite:///hawaii.sqlite")
+
+insp = inspect(engine)
+print(insp.get_table_names())
 
 # Reflect database
 Base = automap_base()
@@ -21,16 +34,30 @@ session = Session(engine)
 
 app = Flask(__name__)
 
-# Define Routes
-base_date = datetime.datetime.strptime("2017-08-23", "%Y-%m-%d")
+
+base_date = dt.datetime.strptime("2017-08-23", "%Y-%m-%d")
 numdays = 365
-date_list = [base_date - datetime.timedelta(days=x) for x in range(0, numdays)]
+date_list = [base_date - timedelta(days=x) for x in range(0, numdays)]
 
 # Converting them to a list of strings
 str_dates = []
 for date in date_list:
     new_date = date.strftime("%Y-%m-%d")
     str_dates.append(new_date)
+
+#Define routes 
+@app.route("/")
+def home():
+    return(
+       f"Welcome! <br />"
+       f"v1.0/api <br />"
+       f"v1.0/precipitation <br />" 
+       f"v1.0/stations <br />"
+       f"v1.0/tobs <br />"
+       f"v1.0/start (enter a date)"
+
+    )
+
 
 @app.route("/api.v1.0/precipitation")
 def precipitation():
@@ -78,8 +105,8 @@ def tobs():
 @app.route("/api/v1.0/<start>")
 def temperature_s(start):
     # Set start and end dates for date range
-    startDate = datetime.datetime.strptime(start, "%Y-%m-%d")
-    endDate = datetime.datetime.strptime("2017-08-23", "%Y-%m-%d")
+    startDate = dt.datetime.strptime(start, "%Y-%m-%d")
+    endDate = dt.datetime.strptime("2017-08-23", "%Y-%m-%d")
 
     # Date range
     # Getting date range
@@ -113,8 +140,8 @@ def temperature_s(start):
 @app.route("/api/v1.0/<start>/<end>")
 def temperature(start, end):
     # Set start and end dates for date range
-    startDate = datetime.datetime.strptime(start, "%Y-%m-%d")
-    endDate = datetime.datetime.strptime(end, "%Y-%m-%d")
+    startDate = dt.datetime.strptime(start, "%Y-%m-%d")
+    endDate = dt.datetime.strptime(end, "%Y-%m-%d")
 
     # Date range
     # Getting date range
